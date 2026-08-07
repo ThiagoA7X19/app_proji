@@ -1,0 +1,25 @@
+{
+  "name": "classificador-temperatura",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ThiagoA7X19/app_proji.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ThiagoA7X19/app_proji/issues"
+  },
+  "homepage": "https://github.com/ThiagoA7X19/app_proji#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
