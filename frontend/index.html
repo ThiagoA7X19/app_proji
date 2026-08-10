@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Classificador de Temperatura</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>🌡️ Classificador de Temperatura de CPU</h1>
+        <p>Monitoramento inteligente por Inteligência Artificial</p>
+    </header>
+
+    <main>
+
+        <section class="estado-atual">
+
+            <div class="card">
+                <h2>Temperatura atual</h2>
+                <div id="temperatura" class="temperatura">-- °C</div>
+            </div>
+
+            <div class="card">
+                <h2>Classificação da IA</h2>
+                <div id="classificacao" class="classificacao">---</div>
+            </div>
+
+            <div id="estado" class="card estado-card">
+                <h2>Estado do sistema</h2>
+                <div id="estado-texto">Aguardando leitura...</div>
+            </div>
+
+        </section>
+
+
+        <section class="historico">
+
+            <h2>📊 Histórico das leituras</h2>
+
+            <div class="tabela-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Temperatura</th>
+                            <th>Classificação</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="historico-lista">
+
+                        <tr>
+                            <td colspan="2">
+                                Aguardando leituras...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>Sistema de classificação de temperaturas com IA</p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
