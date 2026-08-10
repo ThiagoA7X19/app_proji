@@ -3,10 +3,12 @@ using System.IO.Ports;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
+using System.Globalization;
 
-const string classificador_path = "";
+const string classificador_path = "http://localhost:3000/api/temperatura";
 
 static async Task EnviarLeitura(StringContent conteudo)
 {
@@ -25,7 +27,11 @@ static async Task EnviarLeitura(StringContent conteudo)
 static async Task ProcessarLeitura(string dado)
 {
 
-    float temperatura = float.Parse(dado);
+    float temperatura = float.Parse(
+    dado,
+    CultureInfo.InvariantCulture
+);
+    Console.WriteLine($"Recebido do STM: {temperatura} graus");
     Sensor sensor = new Sensor{Temperatura=temperatura};
 
     string json = JsonSerializer.Serialize(sensor);
@@ -51,14 +57,18 @@ static async Task ProcessarLeitura(string dado)
 }
 
 
-SerialPort porta = new SerialPort("COM3", 115200);
+SerialPort porta = new SerialPort("COM6", 115200);
 
 porta.DataReceived += Porta_DataReceived;
 
 porta.Open();
 
+Console.ReadLine();
+
+
 public class Sensor
 {
+    [JsonPropertyName("temperatura")]    
     public float Temperatura {get; set;}
 }
 
