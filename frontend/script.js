@@ -75,7 +75,7 @@ if (ultima.classificacao.toLowerCase() === 'alta') {
 
         tabela.innerHTML = '';
 
-        dados.slice().reverse().forEach(leitura => {
+        dados.slice(-10).reverse().forEach(leitura => {
 
             const linha = document.createElement('tr');
 
