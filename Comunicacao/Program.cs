@@ -7,13 +7,17 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic;
 using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Management;
 
 const string classificador_path = "http://localhost:3000/api/temperatura";
-
-static async Task EnviarLeitura(StringContent conteudo)
+const string vid = "VID_2D23";
+const string pid = "PID_5740";
+HttpClient client = new HttpClient();
+async Task EnviarLeitura(StringContent conteudo)
 {
     
-    HttpClient client = new HttpClient();
+    
 
     HttpResponseMessage  resposta =  await client.PostAsync(
         classificador_path,
@@ -21,16 +25,21 @@ static async Task EnviarLeitura(StringContent conteudo)
     );
 
     string jsonResposta = await resposta.Content.ReadAsStringAsync();
-    Console.WriteLine(jsonResposta);
+    if (!resposta.IsSuccessStatusCode)
+    {
+        Console.WriteLine($"Erro HTTP:  {resposta.StatusCode}");
+    }
+    else Console.WriteLine(jsonResposta);
 }
 
-static async Task ProcessarLeitura(string dado)
+async Task ProcessarLeitura(string dado)
 {
-
-    float temperatura = float.Parse(
-    dado,
-    CultureInfo.InvariantCulture
-);
+    float temperatura;
+    if(!float.TryParse(dado, NumberStyles.Float ,CultureInfo.InvariantCulture, out temperatura))
+    {
+        Console.WriteLine($"Erro na conversão da temperatura. Provavelmente o dado foi mal formatado");
+        return;
+    }
     Console.WriteLine($"Recebido do STM: {temperatura} graus");
     Sensor sensor = new Sensor{Temperatura=temperatura};
 
@@ -47,24 +56,105 @@ static async Task ProcessarLeitura(string dado)
     
 }
 
- static async void Porta_DataReceived(object sender, SerialDataReceivedEventArgs e)
+async void Porta_DataReceived(object sender, SerialDataReceivedEventArgs e)
 {
     SerialPort porta = (SerialPort)sender;
     string linha = porta.ReadLine();
+    string[] dados_recebidos = linha.Split(';');
     
-    await ProcessarLeitura(linha);
+    foreach(string dado in dados_recebidos)
+    {
+        if (dado.Contains("TEMP"))
+        {
+            string[] par_nome_valor = dado.Split(':');
+            if(par_nome_valor.Length != 2)
+            {
+                Console.WriteLine("Dado recebido em formato inválido.");
+                continue;
+            }
+            Console.WriteLine($"Temperatura recebida do STM: {par_nome_valor[1]}");
+            await ProcessarLeitura(par_nome_valor[1]);
+        }
+    }
+
+    
+    
 
 }
 
+string? encontrarPorta()
+{
+    var searcher = new ManagementObjectSearcher(
+    "SELECT * FROM Win32_PnPEntity"
+);
 
-SerialPort porta = new SerialPort("COM6", 115200);
+foreach (ManagementObject device in searcher.Get())
+{
+    string? deviceID = device["DeviceID"]?.ToString();
+    if(deviceID.Contains(vid) && deviceID.Contains(pid))
+    {
+        string? name = device["Name"]?.ToString();
+        string? porta = Regex.Match(name, @"COM\d+").Value;
+        return porta;
+    }
+    
 
-porta.DataReceived += Porta_DataReceived;
+}
+    return null;
+}
 
-porta.Open();
+using ManagementEventWatcher watcher =
+    new ManagementEventWatcher(
+        "SELECT * FROM Win32_DeviceChangeEvent");
 
-Console.ReadLine();
+watcher.Start();
 
+string? nome_porta = encontrarPorta();
+
+while (true)
+{
+    // STM não está conectado
+    while (nome_porta == null)
+    {
+        ManagementBaseObject evento =
+            watcher.WaitForNextEvent();
+
+        ushort eventType =
+            (ushort)evento["EventType"];
+
+        if (eventType == 2)
+        {
+            Console.WriteLine("Procurando STM...");
+            nome_porta = encontrarPorta();
+            if(nome_porta != null)
+            {
+                Console.WriteLine("STM conectado.");
+            }
+        }
+    }
+
+    // STM foi encontrado
+    using SerialPort porta = new SerialPort(nome_porta);
+    porta.DataReceived += Porta_DataReceived;
+    porta.Open();
+
+
+    ManagementBaseObject eventoRemocao =
+        watcher.WaitForNextEvent();
+
+    ushort tipo =
+        (ushort)eventoRemocao["EventType"];
+
+    if (tipo == 3)
+    {
+        string? porta_atual = encontrarPorta();
+        if(porta_atual == null){
+        Console.WriteLine("O STM foi removido.");
+        porta.Close();
+        nome_porta = null;
+        }
+    }
+}
 
 public class Sensor
 {
