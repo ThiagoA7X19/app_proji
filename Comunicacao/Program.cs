@@ -91,11 +91,13 @@ string? encontrarPorta()
 foreach (ManagementObject device in searcher.Get())
 {
     string? deviceID = device["DeviceID"]?.ToString();
-    if(deviceID.Contains(vid) && deviceID.Contains(pid))
+    if(deviceID != null && deviceID.Contains(vid) && deviceID.Contains(pid))
     {
         string? name = device["Name"]?.ToString();
+        if(name != null){
         string? porta = Regex.Match(name, @"COM\d+").Value;
         return porta;
+        }
     }
     
 
@@ -113,9 +115,9 @@ string? nome_porta = encontrarPorta();
 
 while (true)
 {
-    // STM não está conectado
     while (nome_porta == null)
     {
+        Console.WriteLine("Procurando STM...");
         ManagementBaseObject evento =
             watcher.WaitForNextEvent();
 
@@ -124,36 +126,50 @@ while (true)
 
         if (eventType == 2)
         {
-            Console.WriteLine("Procurando STM...");
+            
             nome_porta = encontrarPorta();
-            if(nome_porta != null)
+
+            if (nome_porta != null)
             {
                 Console.WriteLine("STM conectado.");
             }
         }
     }
 
-    // STM foi encontrado
-    using SerialPort porta = new SerialPort(nome_porta);
-    porta.DataReceived += Porta_DataReceived;
-    porta.Open();
-
-
-    ManagementBaseObject eventoRemocao =
-        watcher.WaitForNextEvent();
-
-    ushort tipo =
-        (ushort)eventoRemocao["EventType"];
-
-    if (tipo == 3)
+    try
     {
-        string? porta_atual = encontrarPorta();
-        if(porta_atual == null){
-        Console.WriteLine("O STM foi removido.");
-        porta.Close();
-        nome_porta = null;
+        using SerialPort porta =
+            new SerialPort(nome_porta);
+
+        porta.DataReceived += Porta_DataReceived;
+        porta.Open();
+
+        ManagementBaseObject eventoRemocao =
+            watcher.WaitForNextEvent();
+
+        ushort tipo =
+            (ushort)eventoRemocao["EventType"];
+
+        if (tipo == 3)
+        {
+            string? porta_atual = encontrarPorta();
+
+            if (porta_atual == null)
+            {
+                Console.WriteLine("O STM foi removido.");
+                nome_porta = null;
+            }
         }
     }
+    catch (IOException)
+    {
+        Console.WriteLine(
+            "A porta deixou de estar disponível."
+        );
+
+        nome_porta = null;
+    }
+    
 }
 
 public class Sensor
