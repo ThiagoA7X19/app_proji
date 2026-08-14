@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using System.Management;
 
 const string classificador_path = "http://localhost:3000/api/temperatura";
-const string vid = "VID_2D23";
+const string vid = "VID_0483";
 const string pid = "PID_5740";
 HttpClient client = new HttpClient();
 async Task EnviarLeitura(StringContent conteudo)
