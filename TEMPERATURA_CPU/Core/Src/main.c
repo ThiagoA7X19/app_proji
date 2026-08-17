@@ -132,7 +132,7 @@ int main(void)
 
     nova_amostra_index++;
 
-    if (nova_amostra_index == NUM_AMOSTRAS - 1)
+    if (nova_amostra_index == NUM_AMOSTRAS)
     {
       nova_amostra_index = 0;
     }
