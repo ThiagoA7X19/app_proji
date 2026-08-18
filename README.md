@@ -65,3 +65,8 @@ As leituras são transmitidas em pacotes binários de tamanho fixo, com a seguin
 ## Notas sobre o classificador
 
 O serviço em `ia/modelo.py` treina, a cada inicialização, uma árvore de decisão com conjuntos de temperaturas de exemplo associados às classes "baixa", "média" e "alta", e usa esse modelo para classificar cada nova leitura recebida. Para adaptar o sistema a um cenário real, essas faixas de exemplo podem ser substituídas por dados de temperatura reais coletados do ambiente monitorado.
+
+
+## Vídeo explicativo sobre o projeto:
+
+https://youtu.be/owmaUb8qVmM
