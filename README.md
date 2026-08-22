@@ -70,3 +70,6 @@ O serviço em `ia/modelo.py` treina, a cada inicialização, uma árvore de deci
 ## Vídeo explicativo sobre o projeto:
 
 https://youtu.be/owmaUb8qVmM
+
+##integrantes:
+Cauã Eduardo, Thiago Pereira 
