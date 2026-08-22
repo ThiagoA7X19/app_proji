@@ -71,5 +71,5 @@ O serviço em `ia/modelo.py` treina, a cada inicialização, uma árvore de deci
 
 https://youtu.be/owmaUb8qVmM
 
-##integrantes:
+## integrantes:
 Cauã Eduardo, Thiago Pereira 
